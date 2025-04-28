@@ -26,7 +26,7 @@ namespace Labo_7___Polymorphism.Entities
 
         public override string ToString()
         {
-            return $"LASERCUTTER: '{base.Name}' ({this.WorkSpaceLength}x{this.WorkSpaceWidth}) [{this.Accuracy}] {base.ToString()}";
+            return $"LASER: '{base.Name}' ({base.WorkSpaceLength}x{base.WorkSpaceWidth}) [{this.Accuracy}] {base.LifeSpanInfo()}";
         }
 
 
