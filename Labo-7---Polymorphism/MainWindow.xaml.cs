@@ -1,14 +1,9 @@
-﻿using System.Text;
+﻿using Labo_7___Polymorphism.Data;
+using Labo_7___Polymorphism.Entities;
+using Microsoft.Win32;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
 namespace Labo_7___Polymorphism;
 
 /// <summary>
@@ -16,6 +11,8 @@ namespace Labo_7___Polymorphism;
 /// </summary>
 public partial class MainWindow : Window
 {
+
+    private Store<Machine> _dataStore = new Store<Machine>();
     public MainWindow()
     {
         InitializeComponent();
@@ -23,7 +20,59 @@ public partial class MainWindow : Window
 
     private void ImportButton_Click(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        OpenFileDialog ofd = new OpenFileDialog();
+        ofd.Filter = "CSV bestanden|*.csv";
+        ofd.InitialDirectory = Environment.CurrentDirectory;
+
+        if (ofd.ShowDialog() == true)
+        {
+            using (StreamReader sr = new StreamReader(ofd.FileName))
+            {
+                //Eerste Readline om de headers te skippen. Regel wordt gelezen en er wordt niks mee gedaan.
+                sr.ReadLine();
+
+                while(!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    string[] values = line.Split(",");
+
+                    Machine machine = null;
+
+                    switch (values[0])
+                    {
+                        case "L": //Laser
+                            machine = new LaserCutter(values[1], 
+                                double.Parse(values[2]),
+                                double.Parse(values[3]),
+                                double.Parse(values[4]),
+                                double.Parse(values[5]));
+                            break;
+
+                        case "R": //Router
+                            machine = new Router(values[1],
+                                double.Parse(values[2]),
+                                double.Parse(values[3]),
+                                double.Parse(values[4]));
+                            break;
+
+                        case "G": //General
+                            machine = new General(values[1]);
+                            break;
+                    }
+
+                    if (machine is not null) 
+                    { 
+                        _dataStore.AddItem(machine);
+                    }
+                }
+            }
+
+            UpdateListBox();
+
+            clearButton.IsEnabled = true;
+            sortButton.IsEnabled = true;
+            filterButton.IsEnabled = true;
+        }
     }
 
     private void RemoveButton_Click(object sender, RoutedEventArgs e)
@@ -54,5 +103,18 @@ public partial class MainWindow : Window
     private void itemsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         throw new NotImplementedException();
+    }
+
+    private void UpdateListBox()
+    {
+        itemsListBox.Items.Clear();
+
+        foreach (Machine machine in _dataStore.GetAllItems())
+        {
+            itemsListBox.Items.Add(machine);
+        }
+
+        useButton.IsEnabled = false;
+        removeButton.IsEnabled = false;
     }
 }

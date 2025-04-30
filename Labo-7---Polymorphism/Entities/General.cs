@@ -21,7 +21,7 @@ namespace Labo_7___Polymorphism.Entities
 
         public override string ToString()
         {
-            return $"{base.Name} <lifespan: {base.LifeSpanInfo()}>h";
+            return $"{base.Name} {base.LifeSpanInfo()}";
         }
     }
 }
