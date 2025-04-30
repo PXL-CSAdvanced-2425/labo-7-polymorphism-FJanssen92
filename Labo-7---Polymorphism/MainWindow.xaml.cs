@@ -77,32 +77,66 @@ public partial class MainWindow : Window
 
     private void RemoveButton_Click(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        _dataStore.RemoveItem(SelectedMachine);
+        UpdateListBox();
     }
 
     private void ClearButton_Click(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        _dataStore.ClearAllItems();
+        UpdateListBox();
     }
 
     private void UseButton_Click(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        if (SelectedMachine is not null)
+        {
+            if(int.TryParse(SelectedMachine.Name, out int minutes) && minutes > 0)
+            {
+                SelectedMachine.Use(minutes);
+                UpdateListBox();
+            }
+        }
     }
 
     private void SortButton_Click(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        _dataStore.SortItems((x, y) => string.Compare(x.Name, y.Name));
+        UpdateListBox();
     }
 
     private void FilterButton_Click(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        string filterText = inputTextBox.Text;
+
+        if (!string.IsNullOrEmpty(filterText))
+        {
+            itemsListBox.Items.Clear();
+            foreach(var item in _dataStore.FilterItems(m => m.Name.Contains(filterText)))
+            {
+                itemsListBox.Items.Add(item);
+            }
+        }
+       
+
+        
     }
 
     private void itemsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        throw new NotImplementedException();
+        if (itemsListBox.SelectedItem is Machine machine)
+        {
+            if (machine.OutOfUse)
+            {
+                useButton.IsEnabled = false;
+                removeButton.IsEnabled = false;
+            }
+            else
+            {
+                useButton.IsEnabled = true;
+                removeButton.IsEnabled = true;
+            }
+        }
     }
 
     private void UpdateListBox()
@@ -117,4 +151,6 @@ public partial class MainWindow : Window
         useButton.IsEnabled = false;
         removeButton.IsEnabled = false;
     }
+
+    private Machine SelectedMachine => itemsListBox.SelectedItem as Machine;
 }
